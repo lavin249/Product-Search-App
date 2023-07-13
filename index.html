@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<link rel="stylesheet"
+		href=
+"https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<script src=
+"https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+	</script>
+	<script src=
+"https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js">
+	</script>
+</head>
+<body>
+	<div class="container">
+		<h2 style="color:green">Stanley Martin</h2>
+		
+		<nav class="navbar navbar-light bg-light">
+		  <form class="form-inline">
+			<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" id = "searchString">
+			<button type="button" class="btn btn-default" onclick="getOrderedProductList()">
+						<span class="glyphicon
+						glyphicon-search"></span> Search
+			</button>
+		  </form>
+		</nav>
+		
+		<table class="table table-bordered">
+			<tbody id="productResultSet">
+			</tbody>
+		</table>
+
+		
+	</div>
+</body>
+</html>
+<script type = "text/javascript">  
+	function getOrderedProductList() {
+		truncateResultSetTable();
+		var searchString = document.getElementById('searchString').value.trim();
+		if(isAlphaNumeric(searchString)){
+			let resultSet = [];			
+			productListJson = getJsonData();
+			const  productListObj = JSON.parse(productListJson);
+			resultSet = getResultSet(productListObj,searchString);
+			resultSet = sortResultSet(resultSet);
+			displayResultSet(resultSet);
+		}
+		else{
+			alert("Please Enter Only AlphaNumeric Characters");	
+		}			
+	}  
+	
+	function isAlphaNumeric(str) {	
+		if (str === "") {
+			return false;
+		}
+		return true;
+	}
+
+	function getJsonData(){
+		let productListJson = '[ { "ProjectGroupID": "23", "MetroAreaID": "1007", "ProjectName": "Edgewater", "ProductID": "980", "ProductName": "The Davis" }, { "ProjectGroupID": "23", "MetroAreaID": "1007", "ProjectName": "Edgewater", "ProductID": "E15", "ProductName": "The Amelia" }, { "ProjectGroupID": "23", "MetroAreaID": "1007", "ProjectName": "Edgewater", "ProductID": "Y54", "ProductName": "The Lockwood" }, { "ProjectGroupID": "23", "MetroAreaID": "1007", "ProjectName": "Edgewater", "ProductID": "Y58", "ProductName": "The Prescott" }, { "ProjectGroupID": "25", "MetroAreaID": "1007", "ProjectName": "Inwood", "ProductID": "1562", "ProductName": "The Dupree" }, { "ProjectGroupID": "41", "MetroAreaID": "1008", "ProjectName": "Estuary at Bowen Village", "ProductID": "1601", "ProductName": "The Stono" }, { "ProjectGroupID": "41", "MetroAreaID": "1008", "ProjectName": "Estuary at Bowen Village", "ProductID": "U68", "ProductName": "The Moultrie" }, { "ProjectGroupID": "43", "MetroAreaID": "1008", "ProjectName": "Mixson", "ProductID": "1674", "ProductName": "The Stella" }, { "ProjectGroupID": "47", "MetroAreaID": "1008", "ProjectName": "Oldfield", "ProductID": "1665", "ProductName": "The Tidalview" }, { "ProjectGroupID": "47", "MetroAreaID": "1008", "ProjectName": "Oldfield", "ProductID": null, "ProductName": null } ]';
+		return productListJson;
+	}
+
+	function truncateResultSetTable(){
+		var tbody = document.getElementById('productResultSet');
+		while(tbody.firstChild){
+			tbody.removeChild(tbody.firstChild);
+		}
+	}
+
+	function getResultSet(productListObj, searchString){
+		resultSet = [];
+		for (let i = 0; i < productListObj.length; i++) {
+			console.log(productListObj[i]);
+			for(var key in productListObj[i]){
+				if(productListObj[i][key] != null  && productListObj[i][key].includes(searchString)){
+					console.log(searchString); 
+					console.log(productListObj[i][key]);
+					resultSet.push(productListObj[i]);
+					break;
+				}
+			}
+		}
+		return resultSet;
+	}
+
+	function sortResultSet(resultSet){
+		if(Array.isArray(resultSet) && resultSet.length>0){
+			resultSet.sort((a, b) => {
+				if (a.ProductName === null && b.ProductName=== null) {
+					return 0;
+				} else if (a.ProductName === null) {
+					return 1;
+				} else if (b.ProductName === null) {
+					return -1;
+				} else {
+					return a.ProductName.localeCompare(b.ProductName);
+				}
+			});
+		}
+		return resultSet;;
+	}
+
+	function displayResultSet(resultSet){
+		document.getElementById("productResultSet").innerHTML = "";
+		var tablecontents = "";
+		
+		if(Array.isArray(resultSet) && resultSet.length>0){
+			for (var i = 0; i < resultSet.length; i++) {
+				tablecontents += "<tr><td>";
+				for(var key in resultSet[i]){
+					tablecontents +=resultSet[i][key]+"<br>"; 
+				}
+				tablecontents += "</td></tr>";
+			}
+		}
+		else {
+			tablecontents += "<tr><td>No Record Found</td></tr>";
+		}
+		
+		document.getElementById("productResultSet").innerHTML = tablecontents;	
+	}
+</script>  
